@@ -7,7 +7,7 @@
 
 void DrawComponent::Init()
 {
-	// load model
+	// load the model
 	pmp::read(mesh, "models\\bear_bis.obj");
 	pmp::vertex_normals(mesh);
 	std::cout << "#f " << mesh.n_faces() << " #v " << mesh.n_vertices() << std::endl;
@@ -20,7 +20,7 @@ void DrawComponent::Draw()
 	// vertex의 3d position을 그리기
 
 	pmp::BoundingBox boundingBox = pmp::BoundingBox();
-
+	
 	auto normals = mesh.vertex_property<pmp::Normal>("v:normal");
 	for (auto f : mesh.faces())
 	{
@@ -47,33 +47,24 @@ void DrawComponent::Draw()
 	pmp::Point minPoint = boundingBox.min();
 	pmp::Point maxPoint = boundingBox.max();
 
+	// Draw bottom rectangle
+	glBegin(GL_LINE_LOOP);
+	glVertex3d(minPoint[0], minPoint[1], minPoint[2]);
+	glVertex3d(maxPoint[0], minPoint[1], minPoint[2]);
+	glVertex3d(maxPoint[0], minPoint[1], maxPoint[2]);
+	glVertex3d(minPoint[0], minPoint[1], maxPoint[2]);
+	glEnd();
+
+	// Draw top rectangle
+	glBegin(GL_LINE_LOOP);
+	glVertex3d(minPoint[0], maxPoint[1], minPoint[2]);
+	glVertex3d(maxPoint[0], maxPoint[1], minPoint[2]);
+	glVertex3d(maxPoint[0], maxPoint[1], maxPoint[2]);
+	glVertex3d(minPoint[0], maxPoint[1], maxPoint[2]);
+	glEnd();
+
+	// Draw vertical lines
 	glBegin(GL_LINES);
-	glVertex3d(minPoint[0], minPoint[1], minPoint[2]);
-	glVertex3d(maxPoint[0], minPoint[1], minPoint[2]);
-
-	glVertex3d(maxPoint[0], minPoint[1], minPoint[2]);
-	glVertex3d(maxPoint[0], minPoint[1], maxPoint[2]);
-
-	glVertex3d(maxPoint[0], minPoint[1], maxPoint[2]);
-	glVertex3d(minPoint[0], minPoint[1], maxPoint[2]);
-
-	glVertex3d(minPoint[0], minPoint[1], maxPoint[2]);
-	glVertex3d(minPoint[0], minPoint[1], minPoint[2]);
-
-	// Top rectangle
-	glVertex3d(minPoint[0], maxPoint[1], minPoint[2]);
-	glVertex3d(maxPoint[0], maxPoint[1], minPoint[2]);
-
-	glVertex3d(maxPoint[0], maxPoint[1], minPoint[2]);
-	glVertex3d(maxPoint[0], maxPoint[1], maxPoint[2]);
-
-	glVertex3d(maxPoint[0], maxPoint[1], maxPoint[2]);
-	glVertex3d(minPoint[0], maxPoint[1], maxPoint[2]);
-
-	glVertex3d(minPoint[0], maxPoint[1], maxPoint[2]);
-	glVertex3d(minPoint[0], maxPoint[1], minPoint[2]);
-
-	// Vertical lines
 	glVertex3d(minPoint[0], minPoint[1], minPoint[2]);
 	glVertex3d(minPoint[0], maxPoint[1], minPoint[2]);
 
@@ -86,4 +77,5 @@ void DrawComponent::Draw()
 	glVertex3d(minPoint[0], minPoint[1], maxPoint[2]);
 	glVertex3d(minPoint[0], maxPoint[1], maxPoint[2]);
 	glEnd();
+
 }
