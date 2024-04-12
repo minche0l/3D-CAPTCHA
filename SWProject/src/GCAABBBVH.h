@@ -135,7 +135,7 @@ inline vector<vector<Face>> BVH::SplitFace(vector<Face> allFaces, SurfaceMesh& m
     for (int i = 1; i < allFaces.size() - 1; i++) {
         auto normal = face_normal(mesh, allFaces[i]);   // 현재 face의 법선 벡터
 
-        // 현재 법선 벡터와 이전 법선 벡터가 같을 경우 fcsList에 push
+        // 현재 법선 벡터와 이전 법선 벡터가 같은 경우(면이 평행한 경우) fcsList에 저장
         if (prev_normal == normal) {
             faces.push_back(allFaces[i]);
             fcsList.push_back(faces);

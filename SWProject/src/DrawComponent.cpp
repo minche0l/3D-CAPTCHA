@@ -13,7 +13,7 @@ using namespace pmp;
 
 BVH* bvh = nullptr;
 vector<Face> faces;
-int level = 10;	// 출력 레벨
+int level = 5;	// 출력 레벨
 
 // Box의 AABB를 Draw
 void DrawAABB(BoundingBox box)
@@ -53,7 +53,7 @@ void DrawAABB(BoundingBox box)
 	glEnd();
 }
 
-// BVH의 노드(BV)를 Draw
+// BV의 AABB를 Draw
 void DrawBV(int level, BVH* bvh)
 {
 	std::queue<BV*> q;
@@ -66,12 +66,9 @@ void DrawBV(int level, BVH* bvh)
 	while (!q.empty()) {
 		auto& bv = q.front();
 
-		
-		//원하는 레벨만 출력
-		/*if (bv->level == level || level < 0)
-			DrawAABB((*bv).box);*/
-		
-		DrawAABB((*bv).box);
+		// BVH : 0 ~ level 까지 Drawing
+		if (bv->level <= level || level < 0)
+			DrawAABB((*bv).box);
 
 		if (bv->left_ != nullptr)
 			q.push(bv->left_);
