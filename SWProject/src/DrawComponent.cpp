@@ -13,8 +13,9 @@ using namespace pmp;
 
 BVH* bvh = nullptr;
 vector<Face> faces;
-int level = 10;
+int level = 10;	// 출력 레벨
 
+// Box의 AABB를 Draw
 void DrawAABB(BoundingBox box)
 {
 	Point minPoint = box.min();
@@ -52,6 +53,7 @@ void DrawAABB(BoundingBox box)
 	glEnd();
 }
 
+// BVH의 노드(BV)를 Draw
 void DrawBV(int level, BVH* bvh)
 {
 	std::queue<BV*> q;
@@ -64,8 +66,12 @@ void DrawBV(int level, BVH* bvh)
 	while (!q.empty()) {
 		auto& bv = q.front();
 
-		if (bv->level == level || level < 0)
-			DrawAABB((*bv).box);
+		
+		//원하는 레벨만 출력
+		/*if (bv->level == level || level < 0)
+			DrawAABB((*bv).box);*/
+		
+		DrawAABB((*bv).box);
 
 		if (bv->left_ != nullptr)
 			q.push(bv->left_);
@@ -100,6 +106,7 @@ void DrawComponent::Draw()
 
 	auto normals = mesh.vertex_property<pmp::Normal>("v:normal");
 
+	// 모델 렌더링
 	for (auto f : mesh.faces())
 	{
 		glBegin(GL_TRIANGLES);
@@ -113,5 +120,6 @@ void DrawComponent::Draw()
 		glEnd();
 	}
 
+	// Draw BV
 	DrawBV(level, bvh);
 }

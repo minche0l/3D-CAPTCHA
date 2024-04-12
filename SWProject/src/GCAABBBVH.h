@@ -7,6 +7,7 @@
 using namespace pmp;
 using namespace std;
 
+// 한 개의 면(face)을 AABB로 감싸는 함수
 BoundingBox AABB(Face face, SurfaceMesh& mesh)
 {
     BoundingBox box;
@@ -17,6 +18,8 @@ BoundingBox AABB(Face face, SurfaceMesh& mesh)
     }
     return box;
 }
+
+// BVH 노드
 class BV
 {
 public:
@@ -30,6 +33,7 @@ public:
     bool IsLeaf();
 };
 
+// BVH 트리
 class BVH
 {
 private:
@@ -41,6 +45,7 @@ public:
     vector<vector<Face>> SplitFace(vector<Face> allFaces, SurfaceMesh& mesh);
 };
 
+// BV 생성자
 inline BV::BV(vector<Face> fcs, int lv, SurfaceMesh& mesh) {
     faces = fcs;
     level = lv;
@@ -70,18 +75,20 @@ inline BV::BV(vector<Face> fcs, int lv, SurfaceMesh& mesh) {
     double splitValue = 0.5 * (minPoint[longestAxis] + maxPoint[longestAxis]);
 
     vector<Face> leftFaces, rightFaces;
+
     for (size_t i = 0; i < faces.size(); i++)
     {
         if (boxes[i].center()[longestAxis] < splitValue)
         {
-            leftFaces.push_back(faces[i]);
+            leftFaces.push_back(faces[i]);      // 기준 축보다 작으면 left
         }
         else
         {
-            rightFaces.push_back(faces[i]);
+            rightFaces.push_back(faces[i]);     // 기준 축보다 크면 right
         }
     }
 
+    // Balance 유지
     if (!leftFaces.empty() && !rightFaces.empty())
     {
         if (leftFaces.size() > 2)
@@ -94,34 +101,41 @@ inline BV::BV(vector<Face> fcs, int lv, SurfaceMesh& mesh) {
     }
 }
 
+// 노드(BV)가 리프인지 검사하는 함수
 inline bool BV::IsLeaf()
 {
     return left_ == nullptr && right_ == nullptr;
 }
 
-
+// BVH 생성자
 inline BVH::BVH(vector<Face> allFaces, SurfaceMesh& mesh)
 {
+    // 분할된 faces를 저장
     vector<vector<Face>> FcsList = SplitFace(allFaces, mesh);
 
+    // faces를 root에 push
     for (auto& faces : FcsList)
     {
         roots.push_back(BV(faces, 0, mesh));
     }
 }
 
+// 모델의 모든 face들을 분할하는 함수
 inline vector<vector<Face>> BVH::SplitFace(vector<Face> allFaces, SurfaceMesh& mesh)
 {
     vector<vector<Face>> fcsList;
     vector<Face> faces;
     vector<Normal> normals;
    
-    auto prev_normal = face_normal(mesh, allFaces[0]);
+
+    auto prev_normal = face_normal(mesh, allFaces[0]);    // 이전 face의 법선 벡터
     faces.push_back(allFaces[0]);
 
+    // 모든 face를 순회
     for (int i = 1; i < allFaces.size() - 1; i++) {
-        auto normal = face_normal(mesh, allFaces[i]);
+        auto normal = face_normal(mesh, allFaces[i]);   // 현재 face의 법선 벡터
 
+        // 현재 법선 벡터와 이전 법선 벡터가 같을 경우 fcsList에 push
         if (prev_normal == normal) {
             faces.push_back(allFaces[i]);
             fcsList.push_back(faces);
@@ -132,13 +146,15 @@ inline vector<vector<Face>> BVH::SplitFace(vector<Face> allFaces, SurfaceMesh& m
         {
             faces.push_back(allFaces[i]);
         }
-
+        
+        // 법선 벡터 update
         prev_normal = normal;
     }
 
     faces.push_back(allFaces[allFaces.size() - 1]);
     fcsList.push_back(faces);
-
+    
+    // face의 x좌표에 따라 정렬
     for (auto& faces : fcsList) {
         std::sort(faces.begin(), faces.end(), [&mesh](Face a, Face b)
             {   
