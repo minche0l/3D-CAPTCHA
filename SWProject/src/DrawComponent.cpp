@@ -13,15 +13,15 @@ using namespace pmp;
 
 BVH* bvh = nullptr;
 vector<Face> faces;
-int level = 5;	// 출력 레벨
+int lv = 15;	// 레벨
 
-// Box의 AABB를 Draw
+// AABB Drawing
 void DrawAABB(BoundingBox box)
 {
 	Point minPoint = box.min();
 	Point maxPoint = box.max();
 
-	// Draw bottom rectangle
+	// 아랫면 Drawing
 	glBegin(GL_LINE_LOOP);
 	glVertex3d(minPoint[0], minPoint[1], minPoint[2]);
 	glVertex3d(maxPoint[0], minPoint[1], minPoint[2]);
@@ -29,7 +29,7 @@ void DrawAABB(BoundingBox box)
 	glVertex3d(minPoint[0], minPoint[1], maxPoint[2]);
 	glEnd();
 
-	// Draw top rectangle
+	// 윗면 Drawing
 	glBegin(GL_LINE_LOOP);
 	glVertex3d(minPoint[0], maxPoint[1], minPoint[2]);
 	glVertex3d(maxPoint[0], maxPoint[1], minPoint[2]);
@@ -37,7 +37,7 @@ void DrawAABB(BoundingBox box)
 	glVertex3d(minPoint[0], maxPoint[1], maxPoint[2]);
 	glEnd();
 
-	// Draw vertical lines
+	// 수직선 Drawing
 	glBegin(GL_LINES);
 	glVertex3d(minPoint[0], minPoint[1], minPoint[2]);
 	glVertex3d(minPoint[0], maxPoint[1], minPoint[2]);
@@ -53,8 +53,8 @@ void DrawAABB(BoundingBox box)
 	glEnd();
 }
 
-// BV의 AABB를 Draw
-void DrawBV(int level, BVH* bvh)
+// BV와 BV를 감싸는 AABB 그리기
+void DrawBVbyLevel(BVH* bvh, SurfaceMesh& mesh, auto& normals)
 {
 	std::queue<BV*> q;
 
@@ -66,9 +66,27 @@ void DrawBV(int level, BVH* bvh)
 	while (!q.empty()) {
 		auto& bv = q.front();
 
-		// BVH : 0 ~ level 까지 Drawing
-		if (bv->level <= level || level < 0)
-			DrawAABB((*bv).box);
+		// lv 레벨 하위 노드를 Drawing
+		if (bv->level == lv || lv < 0)
+		{
+			for (auto& f : bv->faces)
+			{
+				glBegin(GL_TRIANGLES);
+				for (auto v : mesh.vertices(f))
+				{
+					auto p = mesh.position(v);
+					auto n = normals[v];
+					glNormal3d(n[0], n[1], n[2]);
+					glVertex3d(p[0], p[1], p[2]);
+
+				}
+				glEnd();
+			}
+
+			/* BV를 감싸는 AABB Drawing
+			if (bv->level)
+				DrawAABB(bv->box);*/
+		}
 
 		if (bv->left_ != nullptr)
 			q.push(bv->left_);
@@ -103,20 +121,19 @@ void DrawComponent::Draw()
 
 	auto normals = mesh.vertex_property<pmp::Normal>("v:normal");
 
-	// 모델 렌더링
-	for (auto f : mesh.faces())
-	{
-		glBegin(GL_TRIANGLES);
-		for (auto v : mesh.vertices(f))
-		{
-			auto p = mesh.position(v); // x y z
-			auto n = normals[v];
-			glNormal3d(n[0], n[1], n[2]);
-			glVertex3d(p[0], p[1], p[2]);
-		}
-		glEnd();
-	}
+	// 전체 모델 렌더링
+	//for (auto f : mesh.faces())
+	//{
+	//	glBegin(GL_TRIANGLES);
+	//	for (auto v : mesh.vertices(f))
+	//	{
+	//		auto p = mesh.position(v); // x y z
+	//		auto n = normals[v];
+	//		glNormal3d(n[0], n[1], n[2]);
+	//		glVertex3d(p[0], p[1], p[2]);
+	//	}
+	//	glEnd();
+	//}
 
-	// Draw BV
-	DrawBV(level, bvh);
+	DrawBVbyLevel(bvh, mesh, normals);
 }
