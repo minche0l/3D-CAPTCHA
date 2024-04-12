@@ -185,6 +185,7 @@
     <ClInclude Include="..\..\..\..\OneDrive\Desktop\QT Setting\QT Setting\src\pmp\io\write_pmp.h" />
     <ClInclude Include="..\..\..\..\OneDrive\Desktop\QT Setting\QT Setting\src\pmp\io\write_stl.h" />
     <ClInclude Include="src\DrawComponent.h" />
+    <ClInclude Include="src\GCAABBBVH.h" />
     <ClInclude Include="src\pmp\bounding_box.h" />
     <ClInclude Include="src\pmp\exceptions.h" />
     <ClInclude Include="src\pmp\mat_vec.h" />

@@ -272,5 +272,8 @@
     <ClInclude Include="..\..\..\..\OneDrive\Desktop\QT Setting\QT Setting\src\pmp\io\io_flags.h">
       <Filter>Header Files\pmp\io</Filter>
     </ClInclude>
+    <ClInclude Include="src\GCAABBBVH.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
