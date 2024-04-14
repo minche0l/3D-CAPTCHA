@@ -17,5 +17,5 @@
 1. 알고리즘
    * 자유 곡면에 대한 미분 기하 계산
    자유 곡면 S(u,v) 와 S<sub>u</sub>, S<sub>v</sub> (u,v에 대해 1차 미분한 값) , S<sub>uu</sub>, S<sub>uv</sub>, S<sub>vv</sub> (u,v에 대해 2차 미분한 값) 이/가 주어졌을 때 제 1차 기본 형식의 값 E,F,G,N(단위 법선 벡터), 제 2차 기본 형식의 값 L,M,N 다음과 같이 정의됩니다.
-     * E = <S<sub>u</sub>,S<sub>v</sub>>
+   
 
