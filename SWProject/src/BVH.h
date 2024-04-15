@@ -13,7 +13,7 @@ BoundingBox AABB(Face face, SurfaceMesh& mesh)
     BoundingBox box;
     for (auto v : mesh.vertices(face))
     {
-        auto p = mesh.position(v);
+        auto &p = mesh.position(v);
         box += p;
     }
     return box;
@@ -127,7 +127,6 @@ inline vector<vector<Face>> BVH::SplitFace(vector<Face> allFaces, SurfaceMesh& m
     vector<Face> faces;
     vector<Normal> normals;
    
-
     auto prev_normal = face_normal(mesh, allFaces[0]);    // 이전 face의 법선 벡터
     faces.push_back(allFaces[0]);
 
@@ -135,20 +134,20 @@ inline vector<vector<Face>> BVH::SplitFace(vector<Face> allFaces, SurfaceMesh& m
     for (int i = 1; i < allFaces.size() - 1; i++) {
         auto normal = face_normal(mesh, allFaces[i]);   // 현재 face의 법선 벡터
 
-        // 현재 법선 벡터와 이전 법선 벡터가 같은 경우(면이 평행한 경우) fcsList에 저장
+        // faces의 첫 번째 법선 벡터와 법선 벡터가 같은 경우(면이 평행한 경우) fcsList에 저장
         if (prev_normal == normal) {
             faces.push_back(allFaces[i]);
             fcsList.push_back(faces);
             faces.clear();
             faces.push_back(allFaces[i]);
+
+            // 법선 벡터 update
+            prev_normal = normal;
         }
         else
         {
             faces.push_back(allFaces[i]);
         }
-        
-        // 법선 벡터 update
-        prev_normal = normal;
     }
 
     faces.push_back(allFaces[allFaces.size() - 1]);

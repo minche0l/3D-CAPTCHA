@@ -1,6 +1,6 @@
 #include "DrawComponent.h"
 #include "gl/freeglut.h"
-#include "GCAABBBVH.h"
+#include "BVH.h"
 
 #include "pmp/io/io.h"
 #include "pmp/algorithms//normals.h"
@@ -74,8 +74,8 @@ void DrawBVbyLevel(BVH* bvh, SurfaceMesh& mesh, auto& normals)
 				glBegin(GL_TRIANGLES);
 				for (auto v : mesh.vertices(f))
 				{
-					auto p = mesh.position(v);
-					auto n = normals[v];
+					auto &p = mesh.position(v);
+					auto &n = normals[v];
 					glNormal3d(n[0], n[1], n[2]);
 					glVertex3d(p[0], p[1], p[2]);
 
@@ -83,8 +83,8 @@ void DrawBVbyLevel(BVH* bvh, SurfaceMesh& mesh, auto& normals)
 				glEnd();
 			}
 
-			/* BV¸¦ °¨½Î´Â AABB Drawing
-			if (bv->level)
+			//BV¸¦ °¨½Î´Â AABB Drawing
+			/*if (bv->level)
 				DrawAABB(bv->box);*/
 		}
 
@@ -95,6 +95,7 @@ void DrawBVbyLevel(BVH* bvh, SurfaceMesh& mesh, auto& normals)
 			q.push(bv->right_);
 
 		q.pop();
+		
 	}
 }
 
