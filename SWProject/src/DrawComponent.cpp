@@ -13,7 +13,47 @@ using namespace pmp;
 
 BVH* bvh = nullptr;
 vector<Face> faces;
-int lv = 15;	// 레벨
+int lv;
+
+int treeHeight(BV& node)
+{
+	if (node.IsLeaf())
+	{
+		return 0;
+	}
+	else
+	{
+		// 왼쪽 서브트리와 오른쪽 서브트리의 높이 계산
+		int leftHeight = 0;
+		int rightHeight = 0;
+
+		if (node.left_ != nullptr)
+		{
+			leftHeight = treeHeight(*node.left_);
+		}
+
+		if (node.right_ != nullptr)
+		{
+			rightHeight = treeHeight(*node.right_);
+		}
+
+		return 1 + max(leftHeight, rightHeight);
+	}
+}
+
+int maxHeight(BVH& bvh)
+{
+	int maxHeight = 0;
+
+	// 각 루트 노드마다 트리의 높이를 계산하고 가장 큰 값을 선택
+	for (size_t i = 0; i < bvh.roots.size(); ++i)
+	{
+		int height = treeHeight(bvh.roots[i]);
+		maxHeight = max(maxHeight, height);
+	}
+
+	return maxHeight;
+}
 
 // AABB Drawing
 void DrawAABB(BoundingBox box)
@@ -54,7 +94,7 @@ void DrawAABB(BoundingBox box)
 }
 
 // BV와 BV를 감싸는 AABB 그리기
-void DrawBVbyLevel(BVH* bvh, SurfaceMesh& mesh, auto& normals)
+void DrawBVbyLevel(BVH* bvh, SurfaceMesh& mesh, auto& normals, int lv)
 {
 	std::queue<BV*> q;
 
@@ -83,7 +123,7 @@ void DrawBVbyLevel(BVH* bvh, SurfaceMesh& mesh, auto& normals)
 			}
 
 			//BV를 감싸는 AABB Drawing
-			DrawAABB(bv->box);
+			//DrawAABB(bv->box);
 		}
 
 		if (bv->left_ != nullptr)
@@ -110,6 +150,7 @@ void DrawComponent::Init()
 	}
 
 	bvh = new BVH(faces, mesh);
+	lv = maxHeight(*bvh);
 }
 
 void DrawComponent::Draw()
@@ -134,5 +175,5 @@ void DrawComponent::Draw()
 	//	glEnd();
 	//}
 
-	DrawBVbyLevel(bvh, mesh, normals);
+	DrawBVbyLevel(bvh, mesh, normals, lv * 0.8);
 }
