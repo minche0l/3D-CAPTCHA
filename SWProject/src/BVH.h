@@ -110,56 +110,5 @@ inline bool BV::IsLeaf()
 // BVH 생성자
 inline BVH::BVH(vector<Face> allFaces, SurfaceMesh& mesh)
 {
-    // 분할된 faces를 저장
-    vector<vector<Face>> FcsList = SplitFace(allFaces, mesh);
-
-    // faces를 root에 push
-    for (auto& faces : FcsList)
-    {
-        roots.push_back(BV(faces, 0, mesh));
-    }
-}
-
-// 모델의 모든 face들을 분할하는 함수
-inline vector<vector<Face>> BVH::SplitFace(vector<Face> allFaces, SurfaceMesh& mesh)
-{
-    vector<vector<Face>> fcsList;
-    vector<Face> faces;
-    vector<Normal> normals;
-   
-    auto prev_normal = face_normal(mesh, allFaces[0]);    // 이전 face의 법선 벡터
-    faces.push_back(allFaces[0]);
-
-    // 모든 face를 순회
-    for (int i = 1; i < allFaces.size() - 1; i++) {
-        auto normal = face_normal(mesh, allFaces[i]);   // 현재 face의 법선 벡터
-
-        // faces의 첫 번째 법선 벡터와 법선 벡터가 같은 경우(면이 평행한 경우) fcsList에 저장
-        if (prev_normal == normal) {
-            faces.push_back(allFaces[i]);
-            fcsList.push_back(faces);
-            faces.clear();
-            faces.push_back(allFaces[i]);
-
-            // 법선 벡터 update
-            prev_normal = normal;
-        }
-        else
-        {
-            faces.push_back(allFaces[i]);
-        }
-    }
-
-    faces.push_back(allFaces[allFaces.size() - 1]);
-    fcsList.push_back(faces);
-    
-    // face의 x좌표에 따라 정렬
-    for (auto& faces : fcsList) {
-        std::sort(faces.begin(), faces.end(), [&mesh](Face a, Face b)
-            {   
-                return AABB(a, mesh).center()[0] < AABB(b, mesh).center()[0];
-            });
-    }
-
-    return fcsList;
+    roots.push_back(BV(allFaces, 0, mesh));
 }

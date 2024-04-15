@@ -78,14 +78,12 @@ void DrawBVbyLevel(BVH* bvh, SurfaceMesh& mesh, auto& normals)
 					auto &n = normals[v];
 					glNormal3d(n[0], n[1], n[2]);
 					glVertex3d(p[0], p[1], p[2]);
-
 				}
 				glEnd();
 			}
 
 			//BV¸¦ °¨½Î´Â AABB Drawing
-			/*if (bv->level)
-				DrawAABB(bv->box);*/
+			DrawAABB(bv->box);
 		}
 
 		if (bv->left_ != nullptr)
