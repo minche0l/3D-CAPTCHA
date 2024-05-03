@@ -106,7 +106,7 @@ void DrawBVbyLevel(BVH* bvh, SurfaceMesh& mesh, auto& normals, int lv)
 	while (!q.empty()) {
 		auto& bv = q.front();
 
-		// lv 레벨 하위 노드를 Drawing
+		// lv 레벨 노드를 Drawing
 		if (bv->level == lv || lv < 0)
 		{
 			for (auto& f : bv->faces)
@@ -114,8 +114,8 @@ void DrawBVbyLevel(BVH* bvh, SurfaceMesh& mesh, auto& normals, int lv)
 				glBegin(GL_TRIANGLES);
 				for (auto v : mesh.vertices(f))
 				{
-					auto &p = mesh.position(v);
-					auto &n = normals[v];
+					auto& p = mesh.position(v);
+					auto& n = normals[v];
 					glNormal3d(n[0], n[1], n[2]);
 					glVertex3d(p[0], p[1], p[2]);
 				}
@@ -123,17 +123,18 @@ void DrawBVbyLevel(BVH* bvh, SurfaceMesh& mesh, auto& normals, int lv)
 			}
 
 			//BV를 감싸는 AABB Drawing
-			//DrawAABB(bv->box);
+			DrawAABB(bv->box);
 		}
 
 		if (bv->left_ != nullptr)
 			q.push(bv->left_);
-
+		if (bv->mid_ != nullptr)
+			q.push(bv->mid_);
 		if (bv->right_ != nullptr)
 			q.push(bv->right_);
 
 		q.pop();
-		
+
 	}
 }
 
@@ -151,6 +152,7 @@ void DrawComponent::Init()
 
 	bvh = new BVH(faces, mesh);
 	lv = maxHeight(*bvh);
+	cout << lv << endl;
 }
 
 void DrawComponent::Draw()

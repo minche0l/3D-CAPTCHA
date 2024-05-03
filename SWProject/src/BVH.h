@@ -13,7 +13,7 @@ BoundingBox AABB(Face face, SurfaceMesh& mesh)
     BoundingBox box;
     for (auto v : mesh.vertices(face))
     {
-        auto &p = mesh.position(v);
+        auto& p = mesh.position(v);
         box += p;
     }
     return box;
@@ -27,9 +27,8 @@ public:
     BoundingBox box;
     vector<BoundingBox> boxes;
     vector<Face> faces;
-    BV* left_, * right_;
+    BV* left_, * right_, * mid_;
     BV(vector<Face> faces, int lv, SurfaceMesh& mesh);
-    void SplitBV();
     bool IsLeaf();
 };
 
@@ -42,7 +41,6 @@ public:
     vector<BV> roots;
 
     BVH(vector<Face> allFaces, SurfaceMesh& mesh);
-    vector<vector<Face>> SplitFace(vector<Face> allFaces, SurfaceMesh& mesh);
 };
 
 // BV 생성자
@@ -51,6 +49,7 @@ inline BV::BV(vector<Face> fcs, int lv, SurfaceMesh& mesh) {
     level = lv;
     left_ = nullptr;
     right_ = nullptr;
+    mid_ = nullptr;
 
     Point minPoint = Point(FLT_MAX, FLT_MAX, FLT_MAX);
     Point maxPoint = Point(-FLT_MAX, -FLT_MAX, -FLT_MAX);
@@ -67,44 +66,48 @@ inline BV::BV(vector<Face> fcs, int lv, SurfaceMesh& mesh) {
     box = BoundingBox(minPoint, maxPoint);
 
     auto lengths = maxPoint - minPoint;
+
+    // x,y,z축 중 가장 긴 축
     int longestAxis = 0;
     if (lengths[1] > lengths[longestAxis]) longestAxis = 1;
     if (lengths[2] > lengths[longestAxis]) longestAxis = 2;
 
+    double threeOverOne = (maxPoint[longestAxis] - minPoint[longestAxis]) / 3.0;
+
     // 분할 기준 축
-    double splitValue = 0.5 * (minPoint[longestAxis] + maxPoint[longestAxis]);
+    double split1 = minPoint[longestAxis] + threeOverOne;
+    double split2 = maxPoint[longestAxis] - threeOverOne;
 
-    vector<Face> leftFaces, rightFaces;
+    vector<Face> leftFaces, midFaces, rightFaces;
 
-    for (size_t i = 0; i < faces.size(); i++)
+    // 분할 기준에 따라 분류
+    for (size_t i = 0; i < faces.size(); ++i)
     {
-        if (boxes[i].center()[longestAxis] < splitValue)
-        {
-            leftFaces.push_back(faces[i]);      // 기준 축보다 작으면 left
-        }
+        if (boxes[i].max()[longestAxis] < split1)
+            leftFaces.push_back(faces[i]);
+        else if (boxes[i].max()[longestAxis] < split2)
+            midFaces.push_back(faces[i]);
         else
-        {
-            rightFaces.push_back(faces[i]);     // 기준 축보다 크면 right
-        }
+            rightFaces.push_back(faces[i]);
     }
 
-    // Balance 유지
-    if (!leftFaces.empty() && !rightFaces.empty())
+    if (!leftFaces.empty() && !rightFaces.empty()&& !midFaces.empty())
     {
         if (leftFaces.size() > 2)
-        {
             left_ = new BV(leftFaces, level + 1, mesh);
-        }
-        if (rightFaces.size() > 2) {
+
+        if (midFaces.size() > 2)
+            mid_ = new BV(midFaces, level + 1, mesh);
+
+        if (rightFaces.size() > 2)
             right_ = new BV(rightFaces, level + 1, mesh);
-        }
     }
 }
 
 // 노드(BV)가 리프인지 검사하는 함수
 inline bool BV::IsLeaf()
 {
-    return left_ == nullptr && right_ == nullptr;
+    return left_ == nullptr && right_ == nullptr && mid_ == nullptr;
 }
 
 // BVH 생성자
